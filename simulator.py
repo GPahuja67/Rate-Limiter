@@ -12,34 +12,35 @@ def run_simulation():
 
     log_file = open("requests.log", "a")
 
-    print("Rate Limiter Simulator")
-    print("Commands:")
-    print("  <username> → simulate request")
-    print("  stats      → show active users")
-    print("  config     → show rate limit settings")
-    print("  reset      → clear all request data")
-    print("  exit       → stop program\n")
+    print("\n=== API Rate Limiter Simulation ===")
+    print("Available Commands:")
+    print("  <username> : simulate an incoming request")
+    print("  stats      : display number of active users being tracked")
+    print("  config     : display current rate limiting configuration")
+    print("  reset      : clear all stored request data")
+    print("  exit       : terminate the simulation\n")
 
     while True:
 
         line = input("> ").strip()
 
         if line.lower() == "exit":
-            print("Stopping simulation...")
+            print("Shutting down the simulation...")
             break
 
         if line.lower() == "stats":
-            print(f"Active users being tracked: {len(limiter.user_requests)}")
+            print(f"System Status: Tracking {len(limiter.user_requests)} active user(s).")
             continue
 
         if line.lower() == "config":
-            print(f"Rate Limit: {RATE_LIMIT} requests")
-            print(f"Time Window: {TIME_WINDOW} seconds")
+            print("Current Rate Limiting Configuration:")
+            print(f"  • Maximum Requests : {RATE_LIMIT}")
+            print(f"  • Time Window      : {TIME_WINDOW} seconds")
             continue
 
         if line.lower() == "reset":
             limiter.user_requests.clear()
-            print("All rate limit data cleared.")
+            print("System Reset: All stored request records have been cleared.")
             continue
 
         try:
@@ -54,9 +55,9 @@ def run_simulation():
 
             if allowed:
                 remaining = RATE_LIMIT - count
-                message = f"[{current_time}] Request from {user} → ALLOWED ({count}/{RATE_LIMIT}) | Remaining: {remaining}"
+                message = f"[{current_time}] Request received from '{user}' → ALLOWED ({count}/{RATE_LIMIT}) | Remaining quota: {remaining}"
             else:
-                message = f"[{current_time}] Request from {user} → BLOCKED (limit reached)"
+                message = f"[{current_time}] Request received from '{user}' → BLOCKED (rate limit exceeded)"
 
             print(message)
 
@@ -64,4 +65,4 @@ def run_simulation():
             log_file.flush()
 
         except ValueError as e:
-            print("ERROR:", e)
+            print(f"Input Error: {e}")
