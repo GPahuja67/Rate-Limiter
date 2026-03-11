@@ -10,17 +10,37 @@ def run_simulation():
 
     limiter = RateLimiter(RATE_LIMIT, TIME_WINDOW)
 
+    log_file = open("requests.log", "a")
+
     print("Rate Limiter Simulator")
-    print("Enter a user name to simulate a request")
-    print("Type 'exit' to stop\n")
+    print("Commands:")
+    print("  <username> → simulate request")
+    print("  stats      → show active users")
+    print("  config     → show rate limit settings")
+    print("  reset      → clear all request data")
+    print("  exit       → stop program\n")
 
     while True:
 
-        line = input("> ")
+        line = input("> ").strip()
 
         if line.lower() == "exit":
             print("Stopping simulation...")
             break
+
+        if line.lower() == "stats":
+            print(f"Active users being tracked: {len(limiter.user_requests)}")
+            continue
+
+        if line.lower() == "config":
+            print(f"Rate Limit: {RATE_LIMIT} requests")
+            print(f"Time Window: {TIME_WINDOW} seconds")
+            continue
+
+        if line.lower() == "reset":
+            limiter.user_requests.clear()
+            print("All rate limit data cleared.")
+            continue
 
         try:
 
@@ -33,9 +53,15 @@ def run_simulation():
             current_time = datetime.datetime.now().strftime("%H:%M:%S")
 
             if allowed:
-                print(f"[{current_time}] Request from {user} → ALLOWED ({count}/{RATE_LIMIT})")
+                remaining = RATE_LIMIT - count
+                message = f"[{current_time}] Request from {user} → ALLOWED ({count}/{RATE_LIMIT}) | Remaining: {remaining}"
             else:
-                print(f"[{current_time}] Request from {user} → BLOCKED (limit reached)")
+                message = f"[{current_time}] Request from {user} → BLOCKED (limit reached)"
+
+            print(message)
+
+            log_file.write(f"{current_time} {user} {allowed}\n")
+            log_file.flush()
 
         except ValueError as e:
             print("ERROR:", e)
